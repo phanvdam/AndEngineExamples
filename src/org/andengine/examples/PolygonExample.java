@@ -8,9 +8,15 @@ import org.andengine.entity.primitive.Ellipse;
 import org.andengine.entity.primitive.PolyLine;
 import org.andengine.entity.primitive.Polygon;
 import org.andengine.entity.primitive.Rectangle;
+import org.andengine.entity.primitive.TexturedPolygon;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
+import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
+import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
@@ -27,11 +33,14 @@ public class PolygonExample extends SimpleBaseGameActivity {
 
 	private static final int CAMERA_WIDTH = 720;
 	private static final int CAMERA_HEIGHT = 480;
-
+	
 	// ===========================================================
 	// Fields
 	// ===========================================================
 
+	private BitmapTextureAtlas mBitmapTextureAtlas;
+	private ITextureRegion mTextureRegion;
+	
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -53,7 +62,12 @@ public class PolygonExample extends SimpleBaseGameActivity {
 
 	@Override
 	public void onCreateResources() {
+		
+		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 
+		this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 32, 32, TextureOptions.REPEATING_NEAREST);
+		this.mTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBitmapTextureAtlas, this, "background_grass.png", 0, 0);
+		this.mBitmapTextureAtlas.load();
 	}
 
 	@Override
@@ -80,6 +94,9 @@ public class PolygonExample extends SimpleBaseGameActivity {
 		// This polygon can't be triangulated with the current algorithm and will trigger a null pointer exception
 		final float[] vertexX4 = { 0.0f,  50.0f, 100.0f, 100.0f,   0.0f };
 		final float[] vertexY4 = { 0.0f, 150.0f,   0.0f, 100.0f, 100.0f };
+		
+		final float[] vertexX5 = { 0.0f,   0.0f, 32.0f, 32.0f  };
+		final float[] vertexY5 = { 0.0f, 32.0f, 32.0f, 0.0f };
 
 		final VertexBufferObjectManager vertexBufferObjectManager = this.getVertexBufferObjectManager();
 
@@ -94,6 +111,9 @@ public class PolygonExample extends SimpleBaseGameActivity {
 		
 		//final Polygon polygon4 = new Polygon(20, 350, vertexX4, vertexY4, vertexBufferObjectManager);
 		//polygon4.setColor(Color.CYAN);
+		
+//		final TexturedPolygon texturedPolygon1 = new TexturedPolygon(400, 200, vertexX5, vertexY5, mTextureRegion, vertexBufferObjectManager);
+		final TexturedPolygon texturedPolygon1 = new TexturedPolygon(400, 200, vertexX1, vertexY1, mTextureRegion, vertexBufferObjectManager);
 		
 		final PolyLine polyLine = new PolyLine(500, 50, vertexX4Dummy, vertexY4Dummy, vertexBufferObjectManager);
 		polyLine.setColor(Color.YELLOW);
@@ -110,9 +130,14 @@ public class PolygonExample extends SimpleBaseGameActivity {
 		scene.attachChild(polygon2);
 		scene.attachChild(polygon3);
 		//scene.attachChild(polygon4);
+		scene.attachChild(texturedPolygon1);
 		scene.attachChild(polyLine);
 		scene.attachChild(ellipse);
 		scene.attachChild(rectangle);
+		
+		/* Create the grass and add it to the scene. */
+		final Sprite grass = new Sprite(400, 150, this.mTextureRegion, this.getVertexBufferObjectManager());
+		scene.attachChild(grass);
 
 		return scene;
 	}
